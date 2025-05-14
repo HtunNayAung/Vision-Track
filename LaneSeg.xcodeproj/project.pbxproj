@@ -1,0 +1,422 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C8A3F5482DD0B18B00EEF815 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A3F5472DD0B18B00EEF815 /* AppDelegate.swift */; };
+		C8A3F54A2DD0B18B00EEF815 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A3F5492DD0B18B00EEF815 /* SceneDelegate.swift */; };
+		C8A3F54C2DD0B18B00EEF815 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A3F54B2DD0B18B00EEF815 /* ViewController.swift */; };
+		C8A3F54F2DD0B18B00EEF815 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = C8A3F54E2DD0B18B00EEF815 /* Base */; };
+		C8A3F5512DD0B18D00EEF815 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8A3F5502DD0B18D00EEF815 /* Assets.xcassets */; };
+		C8A3F5542DD0B18D00EEF815 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = C8A3F5532DD0B18D00EEF815 /* Base */; };
+		C8A3F55C2DD0B22D00EEF815 /* lane_deeplabv3_ImageTensor.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = C8A3F55B2DD0B22D00EEF815 /* lane_deeplabv3_ImageTensor.mlmodel */; };
+		C8BC2A8F2DD172B700764CDD /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = C8BC2A8E2DD172B700764CDD /* Shaders.metal */; };
+		C8D50FA92DD207380067CE15 /* Texture.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FA82DD207380067CE15 /* Texture.swift */; };
+		C8D50FAB2DD207CD0067CE15 /* MetalRenderingDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FAA2DD207CD0067CE15 /* MetalRenderingDevice.swift */; };
+		C8D50FAD2DD2086A0067CE15 /* Maths.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FAC2DD2086A0067CE15 /* Maths.swift */; };
+		C8D50FAF2DD20DD60067CE15 /* VideoCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FAE2DD20DD60067CE15 /* VideoCapture.swift */; };
+		C8D50FB12DD2111C0067CE15 /* CameraTextureGenerater.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FB02DD2111C0067CE15 /* CameraTextureGenerater.swift */; };
+		C8D50FB32DD217BB0067CE15 /* MultitargetSegmentationTextureGenerater.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FB22DD217BB0067CE15 /* MultitargetSegmentationTextureGenerater.swift */; };
+		C8D50FB52DD218A30067CE15 /* MetalVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FB42DD218A30067CE15 /* MetalVideoView.swift */; };
+		C8D50FB72DD218C10067CE15 /* OverlayingTexturesGenerater.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FB62DD218C10067CE15 /* OverlayingTexturesGenerater.swift */; };
+		C8D50FB92DD3FA680067CE15 /* SegmentationTextureGenerater.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */; };
+		C8D50FBB2DD462E40067CE15 /* newd11.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FBA2DD462E40067CE15 /* newd11.mlpackage */; };
+		C8D50FBD2DD46BAE0067CE15 /* DetectionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C8A3F5442DD0B18B00EEF815 /* LaneSeg.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaneSeg.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8A3F5472DD0B18B00EEF815 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		C8A3F5492DD0B18B00EEF815 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		C8A3F54B2DD0B18B00EEF815 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		C8A3F54E2DD0B18B00EEF815 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C8A3F5502DD0B18D00EEF815 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C8A3F5532DD0B18D00EEF815 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		C8A3F5552DD0B18D00EEF815 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C8A3F55B2DD0B22D00EEF815 /* lane_deeplabv3_ImageTensor.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = lane_deeplabv3_ImageTensor.mlmodel; sourceTree = "<group>"; };
+		C8BC2A8E2DD172B700764CDD /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		C8D50FA82DD207380067CE15 /* Texture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Texture.swift; sourceTree = "<group>"; };
+		C8D50FAA2DD207CD0067CE15 /* MetalRenderingDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalRenderingDevice.swift; sourceTree = "<group>"; };
+		C8D50FAC2DD2086A0067CE15 /* Maths.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Maths.swift; sourceTree = "<group>"; };
+		C8D50FAE2DD20DD60067CE15 /* VideoCapture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoCapture.swift; sourceTree = "<group>"; };
+		C8D50FB02DD2111C0067CE15 /* CameraTextureGenerater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraTextureGenerater.swift; sourceTree = "<group>"; };
+		C8D50FB22DD217BB0067CE15 /* MultitargetSegmentationTextureGenerater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultitargetSegmentationTextureGenerater.swift; sourceTree = "<group>"; };
+		C8D50FB42DD218A30067CE15 /* MetalVideoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalVideoView.swift; sourceTree = "<group>"; };
+		C8D50FB62DD218C10067CE15 /* OverlayingTexturesGenerater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OverlayingTexturesGenerater.swift; sourceTree = "<group>"; };
+		C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentationTextureGenerater.swift; sourceTree = "<group>"; };
+		C8D50FBA2DD462E40067CE15 /* newd11.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = newd11.mlpackage; sourceTree = "<group>"; };
+		C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionOverlayView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C8A3F5412DD0B18B00EEF815 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C8A3F53B2DD0B18B00EEF815 = {
+			isa = PBXGroup;
+			children = (
+				C8A3F5462DD0B18B00EEF815 /* LaneSeg */,
+				C8A3F5452DD0B18B00EEF815 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C8A3F5452DD0B18B00EEF815 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C8A3F5442DD0B18B00EEF815 /* LaneSeg.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C8A3F5462DD0B18B00EEF815 /* LaneSeg */ = {
+			isa = PBXGroup;
+			children = (
+				C8A3F55B2DD0B22D00EEF815 /* lane_deeplabv3_ImageTensor.mlmodel */,
+				C8D50FBA2DD462E40067CE15 /* newd11.mlpackage */,
+				C8A3F5472DD0B18B00EEF815 /* AppDelegate.swift */,
+				C8A3F5492DD0B18B00EEF815 /* SceneDelegate.swift */,
+				C8A3F54B2DD0B18B00EEF815 /* ViewController.swift */,
+				C8A3F54D2DD0B18B00EEF815 /* Main.storyboard */,
+				C8A3F5502DD0B18D00EEF815 /* Assets.xcassets */,
+				C8A3F5522DD0B18D00EEF815 /* LaunchScreen.storyboard */,
+				C8A3F5552DD0B18D00EEF815 /* Info.plist */,
+				C8D50FA82DD207380067CE15 /* Texture.swift */,
+				C8BC2A8E2DD172B700764CDD /* Shaders.metal */,
+				C8D50FAA2DD207CD0067CE15 /* MetalRenderingDevice.swift */,
+				C8D50FAC2DD2086A0067CE15 /* Maths.swift */,
+				C8D50FAE2DD20DD60067CE15 /* VideoCapture.swift */,
+				C8D50FB02DD2111C0067CE15 /* CameraTextureGenerater.swift */,
+				C8D50FB22DD217BB0067CE15 /* MultitargetSegmentationTextureGenerater.swift */,
+				C8D50FB42DD218A30067CE15 /* MetalVideoView.swift */,
+				C8D50FB62DD218C10067CE15 /* OverlayingTexturesGenerater.swift */,
+				C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */,
+				C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */,
+			);
+			path = LaneSeg;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C8A3F5432DD0B18B00EEF815 /* LaneSeg */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C8A3F5582DD0B18D00EEF815 /* Build configuration list for PBXNativeTarget "LaneSeg" */;
+			buildPhases = (
+				C8A3F5402DD0B18B00EEF815 /* Sources */,
+				C8A3F5412DD0B18B00EEF815 /* Frameworks */,
+				C8A3F5422DD0B18B00EEF815 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LaneSeg;
+			productName = LaneSeg;
+			productReference = C8A3F5442DD0B18B00EEF815 /* LaneSeg.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C8A3F53C2DD0B18B00EEF815 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					C8A3F5432DD0B18B00EEF815 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = C8A3F53F2DD0B18B00EEF815 /* Build configuration list for PBXProject "LaneSeg" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C8A3F53B2DD0B18B00EEF815;
+			productRefGroup = C8A3F5452DD0B18B00EEF815 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C8A3F5432DD0B18B00EEF815 /* LaneSeg */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C8A3F5422DD0B18B00EEF815 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C8A3F5512DD0B18D00EEF815 /* Assets.xcassets in Resources */,
+				C8A3F5542DD0B18D00EEF815 /* Base in Resources */,
+				C8A3F54F2DD0B18B00EEF815 /* Base in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C8A3F5402DD0B18B00EEF815 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C8D50FBB2DD462E40067CE15 /* newd11.mlpackage in Sources */,
+				C8D50FBD2DD46BAE0067CE15 /* DetectionOverlayView.swift in Sources */,
+				C8A3F55C2DD0B22D00EEF815 /* lane_deeplabv3_ImageTensor.mlmodel in Sources */,
+				C8D50FAB2DD207CD0067CE15 /* MetalRenderingDevice.swift in Sources */,
+				C8D50FA92DD207380067CE15 /* Texture.swift in Sources */,
+				C8D50FAD2DD2086A0067CE15 /* Maths.swift in Sources */,
+				C8D50FB52DD218A30067CE15 /* MetalVideoView.swift in Sources */,
+				C8D50FAF2DD20DD60067CE15 /* VideoCapture.swift in Sources */,
+				C8A3F54C2DD0B18B00EEF815 /* ViewController.swift in Sources */,
+				C8A3F5482DD0B18B00EEF815 /* AppDelegate.swift in Sources */,
+				C8A3F54A2DD0B18B00EEF815 /* SceneDelegate.swift in Sources */,
+				C8D50FB32DD217BB0067CE15 /* MultitargetSegmentationTextureGenerater.swift in Sources */,
+				C8D50FB12DD2111C0067CE15 /* CameraTextureGenerater.swift in Sources */,
+				C8D50FB92DD3FA680067CE15 /* SegmentationTextureGenerater.swift in Sources */,
+				C8BC2A8F2DD172B700764CDD /* Shaders.metal in Sources */,
+				C8D50FB72DD218C10067CE15 /* OverlayingTexturesGenerater.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		C8A3F54D2DD0B18B00EEF815 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C8A3F54E2DD0B18B00EEF815 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		C8A3F5522DD0B18D00EEF815 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C8A3F5532DD0B18D00EEF815 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C8A3F5562DD0B18D00EEF815 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C8A3F5572DD0B18D00EEF815 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C8A3F5592DD0B18D00EEF815 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UL6B9PZND6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LaneSeg/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hna.LaneSeg;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C8A3F55A2DD0B18D00EEF815 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UL6B9PZND6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LaneSeg/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hna.LaneSeg;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C8A3F53F2DD0B18B00EEF815 /* Build configuration list for PBXProject "LaneSeg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C8A3F5562DD0B18D00EEF815 /* Debug */,
+				C8A3F5572DD0B18D00EEF815 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C8A3F5582DD0B18D00EEF815 /* Build configuration list for PBXNativeTarget "LaneSeg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C8A3F5592DD0B18D00EEF815 /* Debug */,
+				C8A3F55A2DD0B18D00EEF815 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C8A3F53C2DD0B18B00EEF815 /* Project object */;
+}
