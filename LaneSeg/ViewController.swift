@@ -262,21 +262,23 @@ extension ViewController {
 
             DispatchQueue.main.async { [weak self] in
                 guard let self = self, let depthMap = self.currentDepthMap else { return }
-                guard let resizedDepth = self.resizeDepthPixelBuffer(depthMap, width: 640, height: 640) else {
-                    print("❌ Failed to resize depth map")
-                    return
-                }
+//                guard let resizedDepth = self.resizeDepthPixelBuffer(depthMap, width: 640, height: 640) else {
+//                    print("❌ Failed to resize depth map")
+//                    return
+//                }
 
                 var labeledResults: [(VNRecognizedObjectObservation, String)] = []
 
                 for obs in filteredResults {
                     let boundingBox = obs.boundingBox
 
-                    // Center point in pixel coordinates
-                    let centerX = Int((boundingBox.origin.x + boundingBox.width / 2.0) * 640)
-                    let centerY = Int((1.0 - boundingBox.origin.y - boundingBox.height / 2.0) * 640)
+                    let depthWidth = CVPixelBufferGetWidth(depthMap)
+                    let depthHeight = CVPixelBufferGetHeight(depthMap)
 
-                    let depth = self.depthAt(x: centerX, y: centerY, pixelBuffer: resizedDepth)
+                    let centerX = Int((boundingBox.origin.x + boundingBox.width / 2.0) * CGFloat(depthWidth))
+                    let centerY = Int((1.0 - boundingBox.origin.y - boundingBox.height / 2.0) * CGFloat(depthHeight))
+                    
+                    let depth = self.depthAt(x: centerX, y: centerY, pixelBuffer: depthMap)
 
                     if let topLabel = obs.labels.first {
                         let label = "\(topLabel.identifier.capitalized) at \(String(format: "%.1f", depth))m"
@@ -431,20 +433,16 @@ extension ViewController {
 
         let width = CVPixelBufferGetWidth(pixelBuffer)
         let height = CVPixelBufferGetHeight(pixelBuffer)
-        let index = y * width + x
 
         guard x >= 0, x < width, y >= 0, y < height else { return -1 }
-        guard let base = CVPixelBufferGetBaseAddress(pixelBuffer)?.assumingMemoryBound(to: UInt8.self) else {
-            return -1
-        }
+        guard let base = CVPixelBufferGetBaseAddress(pixelBuffer)?
+            .assumingMemoryBound(to: Float32.self) else { return -1 }
 
-        let pixelValue = Float(base[index])
-        var depth = pixelValue / 255.0 // scale to meters
-        if depth > 0.1{
-            depth = depth - 0.05
-        }
-        return depth
+        let index = y * width + x
+        let depth = base[index] // already in meters
+        return depth.isFinite && depth > 0 ? depth : -1
     }
+
 
 
 }
