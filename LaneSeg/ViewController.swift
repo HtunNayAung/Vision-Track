@@ -63,10 +63,10 @@ class ViewController: UIViewController {
         setUpModel()
         
         // setup camera
-        setUpCamera()
+//        setUpCamera()
         
         // setup lidar
-//        setUpLiDAR()
+        setUpLiDAR()
     }
     
     override func didReceiveMemoryWarning() {
@@ -76,12 +76,12 @@ class ViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.videoCapture.start()
+//        self.videoCapture.start()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.videoCapture.stop()
+//        self.videoCapture.stop()
     }
     
     // MARK: - Setup AI models
@@ -116,18 +116,18 @@ class ViewController: UIViewController {
     }
     
     // MARK: - Setup Lidar
-//    func setUpLiDAR() {
-//        guard ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) else {
-//            print("❌ LiDAR not supported")
-//            return
-//        }
-//
-//        let config = ARWorldTrackingConfiguration()
-//        config.frameSemantics.insert(.sceneDepth)
-//        arSession = ARSession()
-//        arSession.delegate = self
-//        arSession.run(config)
-//    }
+    func setUpLiDAR() {
+        guard ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) else {
+            print("❌ LiDAR not supported")
+            return
+        }
+
+        let config = ARWorldTrackingConfiguration()
+        config.frameSemantics.insert(.sceneDepth)
+        arSession = ARSession()
+        arSession.delegate = self
+        arSession.run(config)
+    }
 
     
     
@@ -227,9 +227,9 @@ extension ViewController {
                 self?.isInferencing = false
             }
         
-//            print("📷 Camera: \(cameraTexture.texture.width)x\(cameraTexture.texture.height)")
-//            print("🧠 Segmentation: \(segmentationTexture.texture.width)x\(segmentationTexture.texture.height)")
-//            print("🎨 Overlayed: \(overlayedTexture!.texture.width)x\(overlayedTexture!.texture.height)")
+            print("📷 Camera: \(cameraTexture.texture.width)x\(cameraTexture.texture.height)")
+            print("🧠 Segmentation: \(segmentationTexture.texture.width)x\(segmentationTexture.texture.height)")
+            print("🎨 Overlayed: \(overlayedTexture!.texture.width)x\(overlayedTexture!.texture.height)")
 
 //            
 //            DispatchQueue.main.async { [weak self] in
@@ -272,29 +272,29 @@ extension ViewController: VideoCaptureDelegate {
     
 }
 
-//// MARK: - ARSessionDelegate
-//extension ViewController: ARSessionDelegate {
-//    func session(_ session: ARSession, didUpdate frame: ARFrame) {
-//        let pixelBuffer = frame.capturedImage
-//        let width = CVPixelBufferGetWidth(pixelBuffer)
-//        let height = CVPixelBufferGetHeight(pixelBuffer)
-//        print("📸 ARKit RGB Frame Resolution: \(width) x \(height)")
-//        print("THis is called")
-//        cameraTexture = cameraTextureGenerater.texture(from: pixelBuffer)
-//        predict(with: pixelBuffer)
-//        if let depthMap = frame.sceneDepth?.depthMap {
-//            currentDepthMap = depthMap
-//            // Debug: print average depth
-//            CVPixelBufferLockBaseAddress(depthMap, .readOnly)
-//            let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthMap), to: UnsafeMutablePointer<Float32>.self)
-//            let width = CVPixelBufferGetWidth(depthMap)
-//            let height = CVPixelBufferGetHeight(depthMap)
-//            let centerIndex = (height / 2) * width + (width / 2)
-//            let centerDepth = floatBuffer[centerIndex]
-//            CVPixelBufferUnlockBaseAddress(depthMap, .readOnly)
-//            print("📏 LiDAR Depth Map Resolution: \(width) x \(height)")
-//            print("🔎 Center depth: \(centerDepth) meters")
-//        }
-//    }
-//}
+// MARK: - ARSessionDelegate
+extension ViewController: ARSessionDelegate {
+    func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        let pixelBuffer = frame.capturedImage
+        let width = CVPixelBufferGetWidth(pixelBuffer)
+        let height = CVPixelBufferGetHeight(pixelBuffer)
+        print("📸 ARKit RGB Frame Resolution: \(width) x \(height)")
+        print("THis is called")
+        cameraTexture = cameraTextureGenerater.texture(from: pixelBuffer)
+        predict(with: pixelBuffer)
+        if let depthMap = frame.sceneDepth?.depthMap {
+            currentDepthMap = depthMap
+            // Debug: print average depth
+            CVPixelBufferLockBaseAddress(depthMap, .readOnly)
+            let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthMap), to: UnsafeMutablePointer<Float32>.self)
+            let width = CVPixelBufferGetWidth(depthMap)
+            let height = CVPixelBufferGetHeight(depthMap)
+            let centerIndex = (height / 2) * width + (width / 2)
+            let centerDepth = floatBuffer[centerIndex]
+            CVPixelBufferUnlockBaseAddress(depthMap, .readOnly)
+            print("📏 LiDAR Depth Map Resolution: \(width) x \(height)")
+            print("🔎 Center depth: \(centerDepth) meters")
+        }
+    }
+}
 

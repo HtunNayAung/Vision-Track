@@ -52,8 +52,8 @@ public class MetalVideoView: MTKView {
 
     private func setupPiplineState() throws {
         let rpd = try sharedMetalRenderingDevice.generateRenderPipelineDescriptor("vertex_render_target",
-                                                                                  "fragment_render_target",
-                                                                                  colorPixelFormat)
+                                                                        "fragment_render_target",
+                                                                        colorPixelFormat)
         pipelineState = try sharedMetalRenderingDevice.device.makeRenderPipelineState(descriptor: rpd)
     }
     

@@ -26,6 +26,7 @@
 		C8D50FB92DD3FA680067CE15 /* SegmentationTextureGenerater.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */; };
 		C8D50FBB2DD462E40067CE15 /* newd11.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FBA2DD462E40067CE15 /* newd11.mlpackage */; };
 		C8D50FBD2DD46BAE0067CE15 /* DetectionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */; };
+		C8D50FE12DD759390067CE15 /* YUVToRGBConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FE02DD759390067CE15 /* YUVToRGBConverter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,7 @@
 		C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentationTextureGenerater.swift; sourceTree = "<group>"; };
 		C8D50FBA2DD462E40067CE15 /* newd11.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = newd11.mlpackage; sourceTree = "<group>"; };
 		C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionOverlayView.swift; sourceTree = "<group>"; };
+		C8D50FE02DD759390067CE15 /* YUVToRGBConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YUVToRGBConverter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 				C8D50FB62DD218C10067CE15 /* OverlayingTexturesGenerater.swift */,
 				C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */,
 				C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */,
+				C8D50FE02DD759390067CE15 /* YUVToRGBConverter.swift */,
 			);
 			path = LaneSeg;
 			sourceTree = "<group>";
@@ -190,6 +193,7 @@
 				C8A3F54A2DD0B18B00EEF815 /* SceneDelegate.swift in Sources */,
 				C8D50FB32DD217BB0067CE15 /* MultitargetSegmentationTextureGenerater.swift in Sources */,
 				C8D50FB12DD2111C0067CE15 /* CameraTextureGenerater.swift in Sources */,
+				C8D50FE12DD759390067CE15 /* YUVToRGBConverter.swift in Sources */,
 				C8D50FB92DD3FA680067CE15 /* SegmentationTextureGenerater.swift in Sources */,
 				C8BC2A8F2DD172B700764CDD /* Shaders.metal in Sources */,
 				C8D50FB72DD218C10067CE15 /* OverlayingTexturesGenerater.swift in Sources */,

@@ -17,15 +17,42 @@ class DetectionOverlayView: UIView {
         context.setLineWidth(2.0)
         context.setStrokeColor(UIColor.green.cgColor)
 
+//        for observation in boxes {
+//            let normalizedRect = observation.boundingBox
+//            let convertedRect = VNImageRectForNormalizedRect(normalizedRect, Int(bounds.width), Int(bounds.height))
+//            let flippedRect = CGRect(x: convertedRect.origin.x,
+//                                     y: bounds.height - convertedRect.origin.y - convertedRect.height,
+//                                     width: convertedRect.width,
+//                                     height: convertedRect.height)
+//            context.stroke(flippedRect)
+//        }
+        
         for observation in boxes {
-            let normalizedRect = observation.boundingBox
-            let convertedRect = VNImageRectForNormalizedRect(normalizedRect, Int(bounds.width), Int(bounds.height))
-            let flippedRect = CGRect(x: convertedRect.origin.x,
-                                     y: bounds.height - convertedRect.origin.y - convertedRect.height,
-                                     width: convertedRect.width,
-                                     height: convertedRect.height)
-            context.stroke(flippedRect)
+            let r = observation.boundingBox  // model output in portrait-normalized
+
+            // Step 1: Rotate 90° clockwise in normalized space
+            let rotated = CGRect(
+                x: 1.0 - r.origin.y - r.height,
+                y: r.origin.x,
+                width: r.height,
+                height: r.width
+            )
+
+            // Step 2: Flip horizontally
+            let flippedX = 1.0 - rotated.origin.x - rotated.width
+
+            // Step 3: Convert to UIKit screen space
+            let screenX = flippedX * bounds.width
+            let screenY = rotated.origin.y * bounds.height
+            let screenWidth = rotated.width * bounds.width
+            let screenHeight = rotated.height * bounds.height
+
+            let box = CGRect(x: screenX, y: screenY, width: screenWidth, height: screenHeight)
+
+            context.stroke(box)
         }
+
+
     }
 
     func updateBoxes(_ boxes: [VNRecognizedObjectObservation]) {
