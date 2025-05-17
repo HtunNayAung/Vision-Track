@@ -367,6 +367,7 @@
 				DEVELOPMENT_TEAM = UL6B9PZND6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LaneSeg/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VisionTrack;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -396,6 +397,7 @@
 				DEVELOPMENT_TEAM = UL6B9PZND6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LaneSeg/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VisionTrack;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

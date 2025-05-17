@@ -228,10 +228,6 @@ extension ViewController {
                 }
             }
 
-
-
-            
-            
             let overlayedTexture = overlayingTexturesGenerater.texture(cameraTexture, segmentationTexture)
             DispatchQueue.main.async { [weak self] in
                 self?.metalVideoPreview.currentTexture = overlayedTexture
@@ -287,37 +283,41 @@ extension ViewController {
     
     func detectionDidComplete(request: VNRequest, error: Error?) {
         if let results = request.results as? [VNRecognizedObjectObservation], !results.isEmpty {
-            let filteredResults = results.filter { obs in
-                guard let topLabel = obs.labels.first else { return false }
-                return allowedLabels.contains(topLabel.identifier.lowercased()) && topLabel.confidence > 0.5
-            }
-
             DispatchQueue.main.async { [weak self] in
-                guard let self = self, let depthMap = self.currentDepthMap else { return }
+                guard let self = self,
+                      let depthMap = self.currentDepthMap else { return }
 
                 var labeledResults: [(VNRecognizedObjectObservation, String)] = []
+                
+                let depthWidth = CVPixelBufferGetWidth(depthMap)
+                let depthHeight = CVPixelBufferGetHeight(depthMap)
+                let dangerZone = CGRect(x: 1.0 / 3.0, y: 0.0, width: 0.45, height: 1.0)
 
-                for obs in filteredResults {
-                    let boundingBox = obs.boundingBox
+                for obs in results {
+                    guard let topLabel = obs.labels.first else { continue }
+                    if !self.allowedLabels.contains(topLabel.identifier.lowercased()) || topLabel.confidence < 0.5 {
+                        continue
+                    }
 
-                    let depthWidth = CVPixelBufferGetWidth(depthMap)
-                    let depthHeight = CVPixelBufferGetHeight(depthMap)
+                    let box = obs.boundingBox
+                    let center = CGPoint(x: box.midX, y: box.midY)
 
-                    let centerX = Int((boundingBox.origin.x + boundingBox.width / 2.0) * CGFloat(depthWidth))
-                    let centerY = Int((1.0 - boundingBox.origin.y - boundingBox.height / 2.0) * CGFloat(depthHeight))
-                    
-                    let depth = self.depthAt(x: centerX, y: centerY, pixelBuffer: depthMap)
+                    // Convert to pixel coords (center)
+                    let px = Int(center.x * CGFloat(depthWidth))
+                    let py = Int((1.0 - center.y) * CGFloat(depthHeight)) // flipped y
 
-                    if let topLabel = obs.labels.first {
-                        let label = "\(topLabel.identifier.capitalized) at \(String(format: "%.1f", depth))m"
-                        labeledResults.append((obs, label))
+                    let depth = self.depthAt(x: px, y: py, pixelBuffer: depthMap)
+                    let label = "\(topLabel.identifier.capitalized) at \(String(format: "%.1f", depth))m"
 
-                        if depth > 0 && depth < 3.0 {
-                            print("⚠️ [DETECTED] \(label)")
-                        }
+                                                                    
+                    labeledResults.append((obs, label))
+
+                    // Print only if in danger zone and within 3m
+                    if depth > 0, depth < 3.0, dangerZone.contains(center) {
+                        print("⚠️ [ALERT] \(label) in front zone")   // THIS NEEDS TO BE DONE WITH VOICE
                     }
                 }
-
+                self.detectionOverlayView.dangerZoneRect = CGRect(x: 0.0 , y: 1.0 / 3.0, width: 1.0, height: 0.45)
                 self.detectionOverlayView.updateBoxes(labeledResults)
             }
         }
