@@ -13,6 +13,11 @@ class ViewController: UIViewController {
     var overlayingTexturesGenerater = OverlayingTexturesGenerater()
     var metalVideoPreview: MetalVideoView!
     var detectionOverlayView: DetectionOverlayView!
+    var depthImageView: UIImageView!
+    
+    let kCVPixelFormatType_32Float: OSType = 2071653510
+
+
 
     // AR
     var arSession: ARSession!
@@ -29,7 +34,7 @@ class ViewController: UIViewController {
     let allowedLabels: Set<String> = [
         "person", "bicycle", "motorcycle", "dog",
         "car", "bus", "truck", "traffic light", "stop sign",
-        "bench", "trash can", "stroller", "pole"
+        "bench", "trash can", "stroller", "pole", "laptop"
     ]
     
     // coreml
@@ -52,12 +57,22 @@ class ViewController: UIViewController {
         detectionOverlayView.backgroundColor = .clear
         detectionOverlayView.isUserInteractionEnabled = false
         view.addSubview(detectionOverlayView)
+        depthImageView = UIImageView()
+        depthImageView.translatesAutoresizingMaskIntoConstraints = false
+        depthImageView.contentMode = .scaleAspectFit
+        view.addSubview(depthImageView)
+
 
         NSLayoutConstraint.activate([
             metalVideoPreview.topAnchor.constraint(equalTo: view.topAnchor),
             metalVideoPreview.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             metalVideoPreview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            metalVideoPreview.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            metalVideoPreview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            depthImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            depthImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            depthImageView.widthAnchor.constraint(equalToConstant: 160),
+            depthImageView.heightAnchor.constraint(equalToConstant: 120)
         ])
         // setup ml model
         setUpModel()
@@ -227,9 +242,9 @@ extension ViewController {
                 self?.isInferencing = false
             }
         
-            print("📷 Camera: \(cameraTexture.texture.width)x\(cameraTexture.texture.height)")
-            print("🧠 Segmentation: \(segmentationTexture.texture.width)x\(segmentationTexture.texture.height)")
-            print("🎨 Overlayed: \(overlayedTexture!.texture.width)x\(overlayedTexture!.texture.height)")
+//            print("📷 Camera: \(cameraTexture.texture.width)x\(cameraTexture.texture.height)")
+//            print("🧠 Segmentation: \(segmentationTexture.texture.width)x\(segmentationTexture.texture.height)")
+//            print("🎨 Overlayed: \(overlayedTexture!.texture.width)x\(overlayedTexture!.texture.height)")
 
 //            
 //            DispatchQueue.main.async { [weak self] in
@@ -245,12 +260,192 @@ extension ViewController {
                 return allowedLabels.contains(topLabel.identifier.lowercased()) && topLabel.confidence > 0.5
             }
 
-
             DispatchQueue.main.async { [weak self] in
-                self?.detectionOverlayView.updateBoxes(filteredResults)
+                guard let self = self, let depthMap = self.currentDepthMap else { return }
+                guard let resizedDepth = self.resizeDepthPixelBuffer(depthMap, width: 640, height: 640) else {
+                    print("❌ Failed to resize depth map")
+                    return
+                }
+
+                var labeledResults: [(VNRecognizedObjectObservation, String)] = []
+
+                for obs in filteredResults {
+                    let boundingBox = obs.boundingBox
+
+                    // Center point in pixel coordinates
+                    let centerX = Int((boundingBox.origin.x + boundingBox.width / 2.0) * 640)
+                    let centerY = Int((1.0 - boundingBox.origin.y - boundingBox.height / 2.0) * 640)
+
+                    let depth = self.depthAt(x: centerX, y: centerY, pixelBuffer: resizedDepth)
+
+                    if let topLabel = obs.labels.first {
+                        let label = "\(topLabel.identifier.capitalized) at \(String(format: "%.1f", depth))m"
+                        labeledResults.append((obs, label))
+
+                        if depth > 0 && depth < 3.0 {
+                            print("⚠️ [DETECTED] \(label)")
+                        }
+                    }
+                }
+
+                self.detectionOverlayView.updateBoxes(labeledResults)
             }
         }
     }
+
+}
+
+// MARK: - Depth
+extension ViewController {
+    func depthMapToUIImage(_ depthPixelBuffer: CVPixelBuffer) -> UIImage? {
+        CVPixelBufferLockBaseAddress(depthPixelBuffer, .readOnly)
+
+        let width = CVPixelBufferGetWidth(depthPixelBuffer)
+        let height = CVPixelBufferGetHeight(depthPixelBuffer)
+        let baseAddress = unsafeBitCast(CVPixelBufferGetBaseAddress(depthPixelBuffer), to: UnsafeMutablePointer<Float32>.self)
+        let count = width * height
+        let depthArray = Array(UnsafeBufferPointer(start: baseAddress, count: count))
+
+        guard let min = depthArray.min(), let max = depthArray.max(), max - min > 0 else {
+            CVPixelBufferUnlockBaseAddress(depthPixelBuffer, .readOnly)
+            return nil
+        }
+
+        let normalized = depthArray.map { UInt8((($0 - min) / (max - min)) * 255) }
+
+        let cfData = CFDataCreate(nil, normalized, count)
+        let provider = CGDataProvider(data: cfData!)!
+
+        let cgImage = CGImage(width: width,
+                              height: height,
+                              bitsPerComponent: 8,
+                              bitsPerPixel: 8,
+                              bytesPerRow: width,
+                              space: CGColorSpaceCreateDeviceGray(),
+                              bitmapInfo: CGBitmapInfo(rawValue: 0),
+                              provider: provider,
+                              decode: nil,
+                              shouldInterpolate: false,
+                              intent: .defaultIntent)
+
+        CVPixelBufferUnlockBaseAddress(depthPixelBuffer, .readOnly)
+
+        return cgImage.map { UIImage(cgImage: $0) }
+    }
+    
+    func resizeDepthPixelBuffer(_ pixelBuffer: CVPixelBuffer, width: Int, height: Int) -> CVPixelBuffer? {
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+
+        var outputPixelBuffer: CVPixelBuffer?
+        let attrs = [
+            kCVPixelBufferCGImageCompatibilityKey: true,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: true
+        ] as CFDictionary
+
+        let status = CVPixelBufferCreate(kCFAllocatorDefault,
+                                         width,
+                                         height,
+                                         1278226488, // kCVPixelFormatType_OneComponent8
+                                         attrs,
+                                         &outputPixelBuffer)
+
+        guard status == kCVReturnSuccess, let resized = outputPixelBuffer else {
+            print("❌ Could not create resized pixel buffer")
+            return nil
+        }
+
+        context.render(
+            ciImage
+                .transformed(by: CGAffineTransform(scaleX: CGFloat(width) / CGFloat(CVPixelBufferGetWidth(pixelBuffer)),
+                                                   y: CGFloat(height) / CGFloat(CVPixelBufferGetHeight(pixelBuffer)))),
+            to: resized
+        )
+
+        return resized
+    }
+
+//        func averageDepth(in rect: CGRect, pixelBuffer: CVPixelBuffer) -> Float {
+//            CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
+//            defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
+//
+//            let width = CVPixelBufferGetWidth(pixelBuffer)
+//            let height = CVPixelBufferGetHeight(pixelBuffer)
+//            let bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer)
+//            guard let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer) else {
+//                return -1
+//            }
+//
+//            let pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer)
+//            let bytesPerPixel: Int
+//
+//            switch pixelFormat {
+//            case kCVPixelFormatType_32Float:
+//                bytesPerPixel = 4
+//            default:
+//                print("❌ Unsupported pixel format for averaging depth: \(pixelFormat)")
+//                return -1
+//            }
+//
+//            let xStart = max(0, min(Int(rect.origin.x), width - 1))
+//            let yStart = max(0, min(Int(rect.origin.y), height - 1))
+//            let xEnd = max(0, min(Int(rect.maxX), width))
+//            let yEnd = max(0, min(Int(rect.maxY), height))
+//
+//            if xStart >= xEnd || yStart >= yEnd { return -1 }
+//
+//            var totalDepth: Float = 0
+//            var validDepthCount: Int = 0
+//
+//            for y in yStart..<yEnd {
+//                for x in xStart..<xEnd {
+//                    let pixelOffset = y * bytesPerRow + x * bytesPerPixel
+//
+//                    switch pixelFormat {
+//                    case kCVPixelFormatType_32Float:
+//                        let depthPtr = baseAddress.advanced(by: pixelOffset).assumingMemoryBound(to: Float32.self)
+//                        let depthValue = Float(depthPtr.pointee)
+//                        if depthValue > 0 && depthValue.isFinite {
+//                            totalDepth += depthValue
+//                            validDepthCount += 1
+//                        }
+////                    case kCVPixelFormatType_16Float:
+////                        let depthPtr = baseAddress.advanced(by: pixelOffset).assumingMemoryBound(to: Float16.self)
+////                        let depthValue = Float(depthPtr.pointee)
+////                        if depthValue > 0 && depthValue.isFinite {
+////                            totalDepth += depthValue
+////                            validDepthCount += 1
+////                        }
+//                    default:
+//                        break // Should not reach here due to the initial check
+//                    }
+//                }
+//            }
+//
+//            return validDepthCount > 0 ? totalDepth / Float(validDepthCount) : -1
+//        }
+    
+    func depthAt(x: Int, y: Int, pixelBuffer: CVPixelBuffer) -> Float {
+        CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
+
+        let width = CVPixelBufferGetWidth(pixelBuffer)
+        let height = CVPixelBufferGetHeight(pixelBuffer)
+        let index = y * width + x
+
+        guard x >= 0, x < width, y >= 0, y < height else { return -1 }
+        guard let base = CVPixelBufferGetBaseAddress(pixelBuffer)?.assumingMemoryBound(to: UInt8.self) else {
+            return -1
+        }
+
+        let pixelValue = Float(base[index])
+        var depth = pixelValue / 255.0 // scale to meters
+        if depth > 0.1{
+            depth = depth - 0.05
+        }
+        return depth
+    }
+
 
 }
 
@@ -278,22 +473,24 @@ extension ViewController: ARSessionDelegate {
         let pixelBuffer = frame.capturedImage
         let width = CVPixelBufferGetWidth(pixelBuffer)
         let height = CVPixelBufferGetHeight(pixelBuffer)
-        print("📸 ARKit RGB Frame Resolution: \(width) x \(height)")
-        print("THis is called")
         cameraTexture = cameraTextureGenerater.texture(from: pixelBuffer)
         predict(with: pixelBuffer)
         if let depthMap = frame.sceneDepth?.depthMap {
             currentDepthMap = depthMap
-            // Debug: print average depth
-            CVPixelBufferLockBaseAddress(depthMap, .readOnly)
-            let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthMap), to: UnsafeMutablePointer<Float32>.self)
-            let width = CVPixelBufferGetWidth(depthMap)
-            let height = CVPixelBufferGetHeight(depthMap)
-            let centerIndex = (height / 2) * width + (width / 2)
-            let centerDepth = floatBuffer[centerIndex]
-            CVPixelBufferUnlockBaseAddress(depthMap, .readOnly)
-            print("📏 LiDAR Depth Map Resolution: \(width) x \(height)")
-            print("🔎 Center depth: \(centerDepth) meters")
+            
+            if let depthImage = depthMapToUIImage(depthMap) {
+                    DispatchQueue.main.async {
+                        self.depthImageView.image = depthImage
+                    }
+                }
+//            // Debug: print average depth
+//            CVPixelBufferLockBaseAddress(depthMap, .readOnly)
+//            let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthMap), to: UnsafeMutablePointer<Float32>.self)
+//            let width = CVPixelBufferGetWidth(depthMap)
+//            let height = CVPixelBufferGetHeight(depthMap)
+//            let centerIndex = (height / 2) * width + (width / 2)
+//            let centerDepth = floatBuffer[centerIndex]
+//            CVPixelBufferUnlockBaseAddress(depthMap, .readOnly)
         }
     }
 }
