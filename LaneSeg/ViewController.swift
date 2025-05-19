@@ -2,6 +2,7 @@ import UIKit
 import Vision
 import AVFoundation
 import ARKit
+import AudioToolbox
 
 class ViewController: UIViewController {
     
@@ -15,7 +16,34 @@ class ViewController: UIViewController {
     var detectionOverlayView: DetectionOverlayView!
     var depthImageView: UIImageView!
 
+    // speech
+    let speechSynthesizer = AVSpeechSynthesizer()
     private var feedbackLabel: UILabel!
+    
+    var lastSpokenTime: Date?
+    var lastSpokenMessage: String?
+    
+    var lastObjectAlertTime: Date?
+    var lastObjectAlertMessage: String?
+    let objectSpeechCooldown: TimeInterval = 5.0
+
+    var lastVibrationTime: Date?
+    let vibrationCooldown: TimeInterval = 2.0
+    
+    var lastLaneAlertMessage: String?
+    var lastLaneAlertTime: Date?
+    let laneSpeechCooldown: TimeInterval = 3.0
+    
+    var isLaneVoiceEnabled = true
+    var isDetectionVoiceEnabled = true
+
+    @objc func toggleLaneVoice(_ sender: UISwitch) {
+        isLaneVoiceEnabled = sender.isOn
+    }
+
+    @objc func toggleDetectionVoice(_ sender: UISwitch) {
+        isDetectionVoiceEnabled = sender.isOn
+    }
 
 
     // AR
@@ -32,8 +60,8 @@ class ViewController: UIViewController {
     // labels
     let numberOfLabels = 2
     let allowedLabels: Set<String> = [
-        "person", "bicycle", "motorcycle", "dog",
-        "car", "bus", "truck", "traffic light", "stop sign",
+        "person", "bicycle",
+        "car", "bus",
         "bench", "trash can", "stroller", "pole"
     ]
     
@@ -68,11 +96,55 @@ class ViewController: UIViewController {
         feedbackLabel.translatesAutoresizingMaskIntoConstraints = false
         feedbackLabel.textAlignment = .center
         feedbackLabel.textColor = .white
-        feedbackLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        feedbackLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+//        feedbackLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        feedbackLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        feedbackLabel.numberOfLines = 0
+        feedbackLabel.lineBreakMode = .byWordWrapping
+        feedbackLabel.textAlignment = .center
         feedbackLabel.text = "Analyzing..."
+//        feedbackLabel.transform = CGAffineTransform(rotationAngle: .pi / 2) // 90° clockwise
 
         view.addSubview(feedbackLabel)
+        
+        
+        let laneSwitch = UISwitch()
+        laneSwitch.isOn = true
+        laneSwitch.addTarget(self, action: #selector(toggleLaneVoice), for: .valueChanged)
+
+        let laneLabel = UILabel()
+        laneLabel.text = "Lane"
+        laneLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        laneLabel.textColor = .white
+        laneLabel.textAlignment = .center
+        
+        let laneStack = UIStackView(arrangedSubviews: [laneLabel, laneSwitch])
+        laneStack.axis = .horizontal
+        laneStack.alignment = .trailing
+        laneStack.spacing = 8
+
+        let detectionSwitch = UISwitch()
+        detectionSwitch.isOn = true
+        detectionSwitch.addTarget(self, action: #selector(toggleDetectionVoice), for: .valueChanged)
+
+        let detectionLabel = UILabel()
+        detectionLabel.text = "Object Alerts"
+        detectionLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        detectionLabel.textColor = .white
+        detectionLabel.textAlignment = .center
+        
+        let detectionStack = UIStackView(arrangedSubviews: [detectionLabel, detectionSwitch])
+        detectionStack.axis = .horizontal
+        detectionStack.alignment = .trailing
+        detectionStack.spacing = 8
+
+        let switchStack = UIStackView(arrangedSubviews: [laneStack, detectionStack, feedbackLabel])
+        switchStack.axis = .vertical
+        switchStack.spacing = 8
+        switchStack.alignment = .leading
+        switchStack.translatesAutoresizingMaskIntoConstraints = false
+        switchStack.transform = CGAffineTransform(rotationAngle: .pi / 2)
+        view.addSubview(switchStack)
+
 
         NSLayoutConstraint.activate([
             metalVideoPreview.topAnchor.constraint(equalTo: view.topAnchor),
@@ -85,10 +157,13 @@ class ViewController: UIViewController {
             depthImageView.widthAnchor.constraint(equalToConstant: 160),
             depthImageView.heightAnchor.constraint(equalToConstant: 120),
             
-            feedbackLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                feedbackLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-                feedbackLabel.widthAnchor.constraint(equalToConstant: 200),
-                feedbackLabel.heightAnchor.constraint(equalToConstant: 40)
+//            feedbackLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
+//                feedbackLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -100),
+//                feedbackLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 300),
+//                feedbackLabel.heightAnchor.constraint(lessThanOrEqualToConstant: 120),
+
+            switchStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 20),
+            switchStack.topAnchor.constraint(equalTo: view.topAnchor, constant: 120)
         ])
         // setup ml model
         setUpModel()
@@ -164,9 +239,49 @@ class ViewController: UIViewController {
         arSession.delegate = self
         arSession.run(config)
     }
+    
+    
+    // MARK: - Speak setup
+    func speak(_ text: String, force: Bool = false, priority: Bool = false) {
+        let now = Date()
+
+        // Priority messages always interrupt
+        if priority {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+            lastSpokenMessage = text
+            lastSpokenTime = now
+        } else {
+            // If not forced and recently spoken, skip
+            if !force,
+               text == lastSpokenMessage,
+               now.timeIntervalSince(lastSpokenTime ?? .distantPast) < 3.0 {
+                return
+            }
+
+            // Update state even if forced
+            lastSpokenMessage = text
+            lastSpokenTime = now
+        }
+
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.rate = 0.5
+
+        DispatchQueue.main.async {
+            self.speechSynthesizer.speak(utterance)
+        }
+    }
+
 
     
-    
+    func vibrate() {
+        let now = Date()
+        if let last = lastVibrationTime, now.timeIntervalSince(last) < vibrationCooldown {
+            return
+        }
+        lastVibrationTime = now
+        AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+    }
 }
 
 // MARK: - Inference
@@ -206,27 +321,44 @@ extension ViewController {
             
             
             let analyzer = SegmentationAnalyzer(device: sharedMetalRenderingDevice.device)!
-//            let isSafe = analyzer.isWalkable(from: segmentationmap)
-//
-//            DispatchQueue.main.async {
-//                self.feedbackLabel.text = isSafe ? "✅ Path ahead" : "⛔ Obstacle ahead"
-//            }
-            
-            let result = analyzer.isLaneLost(from: segmentationmap)
 
+            let result = analyzer.isLaneLost(from: segmentationmap)
+            print("result", result)
+
+            // THIS NEEDS TO BE DONE WITH VOICE
+            var laneMessage = ""
             DispatchQueue.main.async {
-                if result.lost {
+                
+                if !result.lost {
                     if result.suggestLeft {
-                        self.feedbackLabel.text = "Lane lost. Try turning left."
+                        self.feedbackLabel.text = "⬅️ Lane mostly on left."
+                        print(self.lastLaneAlertMessage, "is lastLaneAlertMessage")
+                        if laneMessage == "Lane not detected. Please stop."  { laneMessage = "Lane on left"}
                     } else if result.suggestRight {
-                        self.feedbackLabel.text = "Lane lost. Try turning right."
+                        self.feedbackLabel.text = "➡️ Lane mostly on right."
+                        if laneMessage == "Lane not detected. Please stop."  { laneMessage = "Lane on right"}
                     } else {
-                        self.feedbackLabel.text = "Lane lost. Please stop."
+                        self.feedbackLabel.text = "✅ Center on Lane"
+                        self.lastLaneAlertMessage = nil // Reset if lane is found again
                     }
-                } else {
-                    self.feedbackLabel.text = "✅ Lane detected"
+                } else if result.lost {
+                    self.feedbackLabel.text = "🚨 Lane lost. Please stop."
+                    laneMessage = "Lane not detected. Please stop."
+                }
+                
+                let now = Date()
+                if laneMessage != self.lastLaneAlertMessage ||
+                   now.timeIntervalSince(self.lastLaneAlertTime ?? .distantPast) > self.laneSpeechCooldown {
+
+                    if self.isLaneVoiceEnabled {
+                        self.speak(laneMessage, priority: true)
+                    }
+                    self.lastLaneAlertMessage = laneMessage
+                    self.lastLaneAlertTime = now
                 }
             }
+
+
 
             let overlayedTexture = overlayingTexturesGenerater.texture(cameraTexture, segmentationTexture)
             DispatchQueue.main.async { [weak self] in
@@ -280,7 +412,6 @@ extension ViewController {
 //        return walkableRatio >= 0.7
 //    }
 
-    
     func detectionDidComplete(request: VNRequest, error: Error?) {
         if let results = request.results as? [VNRecognizedObjectObservation], !results.isEmpty {
             DispatchQueue.main.async { [weak self] in
@@ -293,6 +424,8 @@ extension ViewController {
                 let depthHeight = CVPixelBufferGetHeight(depthMap)
                 let dangerZone = CGRect(x: 1.0 / 3.0, y: 0.0, width: 0.45, height: 1.0)
 
+                var closeDangerObjects: [(label: String, depth: Float)] = []
+                var objectCounts: [String: Int] = [:]
                 for obs in results {
                     guard let topLabel = obs.labels.first else { continue }
                     if !self.allowedLabels.contains(topLabel.identifier.lowercased()) || topLabel.confidence < 0.5 {
@@ -307,16 +440,61 @@ extension ViewController {
                     let py = Int((1.0 - center.y) * CGFloat(depthHeight)) // flipped y
 
                     let depth = self.depthAt(x: px, y: py, pixelBuffer: depthMap)
-                    let label = "\(topLabel.identifier.capitalized) at \(String(format: "%.1f", depth))m"
+                    let label = "\(topLabel.identifier.capitalized) at \(String(format: "%.1f", depth)) meters"
 
+                    if depth < 1.0 {
+                            self.vibrate()
+                        }
                                                                     
                     labeledResults.append((obs, label))
 
-                    // Print only if in danger zone and within 3m
                     if depth > 0, depth < 3.0, dangerZone.contains(center) {
-                        print("⚠️ [ALERT] \(label) in front zone")   // THIS NEEDS TO BE DONE WITH VOICE
+                        let type = topLabel.identifier.lowercased()
+                        closeDangerObjects.append((label: type, depth: depth))
+                        objectCounts[type, default: 0] += 1
+                        
+                        
+                    }
+                    
+                }
+                
+                let now = Date()
+                var alertMessage: String?
+
+//                if self.lastLaneAlertMessage != nil {
+//                    // Lane is lost — prioritize lane, skip object alerts
+//                    return
+//                }
+
+                if closeDangerObjects.count == 1 {
+                    if let obj = closeDangerObjects.first {
+                        let roundedDepth = (obj.depth * 2).rounded() / 2
+                        alertMessage = "\(obj.label.capitalized) at \(String(format: "%.1f", roundedDepth)) meters ahead"
+                    }
+                } else if closeDangerObjects.count > 1 {
+                    let total = closeDangerObjects.count
+                    let uniqueLabels = Set(closeDangerObjects.map { $0.label })
+
+                    if uniqueLabels.count == 1, let label = uniqueLabels.first {
+                        let plural = label == "person" ? "people" : label + "s"
+                        alertMessage = "\(total) \(plural) ahead"
+                    } else {
+                        alertMessage = "\(total) obstacles ahead"
                     }
                 }
+
+                // Speak only if it's a new alert or cooldown passed
+                if let message = alertMessage {
+                    if now.timeIntervalSince(lastObjectAlertTime ?? .distantPast) > objectSpeechCooldown {
+
+                        if self.isDetectionVoiceEnabled {
+                            self.speak(message)
+                        }
+                        lastObjectAlertMessage = message
+                        lastObjectAlertTime = now
+                    }
+                }
+
                 self.detectionOverlayView.dangerZoneRect = CGRect(x: 0.0 , y: 1.0 / 3.0, width: 1.0, height: 0.45)
                 self.detectionOverlayView.updateBoxes(labeledResults)
             }
@@ -353,7 +531,6 @@ extension ViewController {
                         }
                     }
                 }
-
                 self.detectionOverlayView.updateBoxes(labeledResults)
             }
         }
@@ -405,37 +582,37 @@ extension ViewController {
 
     }
     
-    func resizeDepthPixelBuffer(_ pixelBuffer: CVPixelBuffer, width: Int, height: Int) -> CVPixelBuffer? {
-        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let context = CIContext()
-
-        var outputPixelBuffer: CVPixelBuffer?
-        let attrs = [
-            kCVPixelBufferCGImageCompatibilityKey: true,
-            kCVPixelBufferCGBitmapContextCompatibilityKey: true
-        ] as CFDictionary
-
-        let status = CVPixelBufferCreate(kCFAllocatorDefault,
-                                         width,
-                                         height,
-                                         1278226488, // kCVPixelFormatType_OneComponent8
-                                         attrs,
-                                         &outputPixelBuffer)
-
-        guard status == kCVReturnSuccess, let resized = outputPixelBuffer else {
-            print("❌ Could not create resized pixel buffer")
-            return nil
-        }
-
-        context.render(
-            ciImage
-                .transformed(by: CGAffineTransform(scaleX: CGFloat(width) / CGFloat(CVPixelBufferGetWidth(pixelBuffer)),
-                                                   y: CGFloat(height) / CGFloat(CVPixelBufferGetHeight(pixelBuffer)))),
-            to: resized
-        )
-
-        return resized
-    }
+//    func resizeDepthPixelBuffer(_ pixelBuffer: CVPixelBuffer, width: Int, height: Int) -> CVPixelBuffer? {
+//        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+//        let context = CIContext()
+//
+//        var outputPixelBuffer: CVPixelBuffer?
+//        let attrs = [
+//            kCVPixelBufferCGImageCompatibilityKey: true,
+//            kCVPixelBufferCGBitmapContextCompatibilityKey: true
+//        ] as CFDictionary
+//
+//        let status = CVPixelBufferCreate(kCFAllocatorDefault,
+//                                         width,
+//                                         height,
+//                                         1278226488, // kCVPixelFormatType_OneComponent8
+//                                         attrs,
+//                                         &outputPixelBuffer)
+//
+//        guard status == kCVReturnSuccess, let resized = outputPixelBuffer else {
+//            print("❌ Could not create resized pixel buffer")
+//            return nil
+//        }
+//
+//        context.render(
+//            ciImage
+//                .transformed(by: CGAffineTransform(scaleX: CGFloat(width) / CGFloat(CVPixelBufferGetWidth(pixelBuffer)),
+//                                                   y: CGFloat(height) / CGFloat(CVPixelBufferGetHeight(pixelBuffer)))),
+//            to: resized
+//        )
+//
+//        return resized
+//    }
 
     func depthAt(x: Int, y: Int, pixelBuffer: CVPixelBuffer) -> Float {
         CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
@@ -452,8 +629,6 @@ extension ViewController {
         let depth = base[index] // already in meters
         return depth.isFinite && depth > 0 ? depth : -1
     }
-
-
 
 }
 
@@ -472,7 +647,6 @@ extension ViewController: VideoCaptureDelegate {
             predict(with: pixelBuffer)
         }
     }
-    
 }
 
 // MARK: - ARSessionDelegate
@@ -487,10 +661,10 @@ extension ViewController: ARSessionDelegate {
             currentDepthMap = depthMap
             
             if let depthImage = depthMapToUIImage(depthMap) {
-                    DispatchQueue.main.async {
-                        self.depthImageView.image = depthImage
-                    }
+                DispatchQueue.main.async {
+                    self.depthImageView.image = depthImage
                 }
+            }
         }
     }
 }

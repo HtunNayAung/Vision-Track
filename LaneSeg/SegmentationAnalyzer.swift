@@ -226,11 +226,13 @@ class SegmentationAnalyzer {
 
         let laneCountLeft = countLanePixels(in: lowerLeft, from: texture)
         let laneCountRight = countLanePixels(in: lowerRight, from: texture)
+        print("laneCountLeft", laneCountLeft, "laneCountRight", laneCountRight,"CurrentThreshould", countThreshold)
 
         let isLaneMissing = laneCountLeft < countThreshold && laneCountRight < countThreshold
-        let suggestLeft = laneCountLeft >= countThreshold
-        let suggestRight = laneCountRight >= countThreshold
+        let suggestLeft = Double(laneCountLeft) >= Double(countThreshold) && Double(laneCountLeft) > 1.3 * Double(laneCountRight)
+        let suggestRight = Double(laneCountRight) >= Double(countThreshold) && Double(laneCountRight) > 1.3 * Double(laneCountLeft)
 
+        print("suggestLeft", suggestLeft, "suggestRight", suggestRight)
         return (isLaneMissing, suggestLeft, suggestRight)
     }
 
