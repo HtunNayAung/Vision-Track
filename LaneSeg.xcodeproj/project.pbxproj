@@ -26,6 +26,11 @@
 		C8D50FB92DD3FA680067CE15 /* SegmentationTextureGenerater.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */; };
 		C8D50FBB2DD462E40067CE15 /* newd11.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FBA2DD462E40067CE15 /* newd11.mlpackage */; };
 		C8D50FBD2DD46BAE0067CE15 /* DetectionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */; };
+		C8D50FE12DD759390067CE15 /* YUVToRGBConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FE02DD759390067CE15 /* YUVToRGBConverter.swift */; };
+		C8D50FE52DD83F5F0067CE15 /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FE42DD83F5F0067CE15 /* SplashViewController.swift */; };
+		C8D50FE72DD866A10067CE15 /* pothole_v12n.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FE62DD866A10067CE15 /* pothole_v12n.mlpackage */; };
+		C8D50FE92DD87DC70067CE15 /* argmax2_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FE82DD87DC70067CE15 /* argmax2_kernel.metal */; };
+		C8D50FEB2DD87E560067CE15 /* SegmentationAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D50FEA2DD87E560067CE15 /* SegmentationAnalyzer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +55,11 @@
 		C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentationTextureGenerater.swift; sourceTree = "<group>"; };
 		C8D50FBA2DD462E40067CE15 /* newd11.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = newd11.mlpackage; sourceTree = "<group>"; };
 		C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionOverlayView.swift; sourceTree = "<group>"; };
+		C8D50FE02DD759390067CE15 /* YUVToRGBConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YUVToRGBConverter.swift; sourceTree = "<group>"; };
+		C8D50FE42DD83F5F0067CE15 /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
+		C8D50FE62DD866A10067CE15 /* pothole_v12n.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = pothole_v12n.mlpackage; sourceTree = "<group>"; };
+		C8D50FE82DD87DC70067CE15 /* argmax2_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = argmax2_kernel.metal; sourceTree = "<group>"; };
+		C8D50FEA2DD87E560067CE15 /* SegmentationAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentationAnalyzer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +94,7 @@
 			children = (
 				C8A3F55B2DD0B22D00EEF815 /* lane_deeplabv3_ImageTensor.mlmodel */,
 				C8D50FBA2DD462E40067CE15 /* newd11.mlpackage */,
+				C8D50FE62DD866A10067CE15 /* pothole_v12n.mlpackage */,
 				C8A3F5472DD0B18B00EEF815 /* AppDelegate.swift */,
 				C8A3F5492DD0B18B00EEF815 /* SceneDelegate.swift */,
 				C8A3F54B2DD0B18B00EEF815 /* ViewController.swift */,
@@ -102,6 +113,10 @@
 				C8D50FB62DD218C10067CE15 /* OverlayingTexturesGenerater.swift */,
 				C8D50FB82DD3FA680067CE15 /* SegmentationTextureGenerater.swift */,
 				C8D50FBC2DD46BAE0067CE15 /* DetectionOverlayView.swift */,
+				C8D50FE02DD759390067CE15 /* YUVToRGBConverter.swift */,
+				C8D50FE42DD83F5F0067CE15 /* SplashViewController.swift */,
+				C8D50FE82DD87DC70067CE15 /* argmax2_kernel.metal */,
+				C8D50FEA2DD87E560067CE15 /* SegmentationAnalyzer.swift */,
 			);
 			path = LaneSeg;
 			sourceTree = "<group>";
@@ -180,19 +195,24 @@
 				C8D50FBB2DD462E40067CE15 /* newd11.mlpackage in Sources */,
 				C8D50FBD2DD46BAE0067CE15 /* DetectionOverlayView.swift in Sources */,
 				C8A3F55C2DD0B22D00EEF815 /* lane_deeplabv3_ImageTensor.mlmodel in Sources */,
+				C8D50FE52DD83F5F0067CE15 /* SplashViewController.swift in Sources */,
 				C8D50FAB2DD207CD0067CE15 /* MetalRenderingDevice.swift in Sources */,
 				C8D50FA92DD207380067CE15 /* Texture.swift in Sources */,
 				C8D50FAD2DD2086A0067CE15 /* Maths.swift in Sources */,
+				C8D50FEB2DD87E560067CE15 /* SegmentationAnalyzer.swift in Sources */,
 				C8D50FB52DD218A30067CE15 /* MetalVideoView.swift in Sources */,
 				C8D50FAF2DD20DD60067CE15 /* VideoCapture.swift in Sources */,
 				C8A3F54C2DD0B18B00EEF815 /* ViewController.swift in Sources */,
 				C8A3F5482DD0B18B00EEF815 /* AppDelegate.swift in Sources */,
 				C8A3F54A2DD0B18B00EEF815 /* SceneDelegate.swift in Sources */,
 				C8D50FB32DD217BB0067CE15 /* MultitargetSegmentationTextureGenerater.swift in Sources */,
+				C8D50FE72DD866A10067CE15 /* pothole_v12n.mlpackage in Sources */,
 				C8D50FB12DD2111C0067CE15 /* CameraTextureGenerater.swift in Sources */,
+				C8D50FE12DD759390067CE15 /* YUVToRGBConverter.swift in Sources */,
 				C8D50FB92DD3FA680067CE15 /* SegmentationTextureGenerater.swift in Sources */,
 				C8BC2A8F2DD172B700764CDD /* Shaders.metal in Sources */,
 				C8D50FB72DD218C10067CE15 /* OverlayingTexturesGenerater.swift in Sources */,
+				C8D50FE92DD87DC70067CE15 /* argmax2_kernel.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +367,7 @@
 				DEVELOPMENT_TEAM = UL6B9PZND6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LaneSeg/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VisionTrack;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -376,6 +397,7 @@
 				DEVELOPMENT_TEAM = UL6B9PZND6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LaneSeg/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VisionTrack;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

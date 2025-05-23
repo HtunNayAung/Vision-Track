@@ -22,7 +22,7 @@ class MultitargetSegmentationTextureGenerater: NSObject {
     
     private func setupPiplineState(_ colorPixelFormat: MTLPixelFormat = .bgra8Unorm, width: Int, height: Int) {
         do {
-            let rpd = try sharedMetalRenderingDevice.generateRenderPipelineDescriptor("vertex_render_target",
+            let rpd = try sharedMetalRenderingDevice.generateRenderPipelineDescriptor("vertex_segmentation_landscape",
                                                                                       "multitarget_segmentation_render_target",
                                                                                       colorPixelFormat)
             pipelineState = try sharedMetalRenderingDevice.device.makeRenderPipelineState(descriptor: rpd)

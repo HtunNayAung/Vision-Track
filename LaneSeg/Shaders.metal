@@ -29,6 +29,8 @@ vertex Vertex vertex_render_target(constant Vertex *vertexes [[ buffer(0) ]],
     return out;
 };
 
+
+
 vertex TwoInputVertex two_vertex_render_target(const device packed_float2 *position [[buffer(0)]],
                                                const device packed_float2 *texturecoord [[buffer(1)]],
                                                const device packed_float2 *texturecoord2 [[buffer(2)]],
@@ -57,6 +59,71 @@ fragment float4 gray_fragment_render_target(Vertex vertex_data [[ stage_in ]],
     float gray = (color[0] + color[1] + color[2])/3;
     return float4(gray, gray, gray, 1.0);
 };
+
+struct VertexOut {
+    float4 position [[position]];
+    float2 texCoord;
+};
+
+
+vertex VertexOut vertex_main(uint vertexID [[vertex_id]],
+                             constant float2 &viewportScale [[buffer(0)]]) {
+    float2 positions[4] = {
+        float2(-1.0, -1.0), float2(1.0, -1.0),
+        float2(-1.0, 1.0),  float2(1.0, 1.0)
+    };
+
+    float2 texCoords[4] = {
+        float2(0.0, 1.0), float2(1.0, 1.0),
+        float2(0.0, 0.0), float2(1.0, 0.0)
+    };
+
+    // Apply 90° clockwise rotation matrix
+    float2 rotated = float2(positions[vertexID].y, -positions[vertexID].x);
+    float2 scaledPos = rotated * viewportScale;
+
+    VertexOut out;
+    out.position = float4(scaledPos, 0, 1);
+    out.texCoord = texCoords[vertexID]; // texCoord remains same
+    return out;
+}
+
+vertex VertexOut ycbcr_vertex(uint vertexID [[vertex_id]]) {
+    float2 positions[4] = {
+        float2(-1.0, -1.0),
+        float2( 1.0, -1.0),
+        float2(-1.0,  1.0),
+        float2( 1.0,  1.0)
+    };
+
+    float2 texCoords[4] = {
+        float2(1.0, 1.0), // (0.0, 1.0)
+        float2(1.0, 0.0), // (1.0, 1.0)
+        float2(0.0, 1.0), // (0.0, 0.0)
+        float2(0.0, 0.0)  // (1.0, 0.0)
+    };
+
+    VertexOut out;
+//
+    out.position = float4(positions[vertexID], 0, 1);
+    out.texCoord = texCoords[vertexID];
+    return out;
+}
+
+
+fragment float4 ycbcr_fragment(VertexOut in [[stage_in]],
+                               texture2d<float> textureY [[texture(0)]],
+                               texture2d<float> textureCbCr [[texture(1)]],
+                               sampler s [[sampler(0)]]) {
+    float y = textureY.sample(s, in.texCoord).r;
+    float2 cbcr = textureCbCr.sample(s, in.texCoord).rg;
+    float cb = cbcr.x - 0.5;
+    float cr = cbcr.y - 0.5;
+    float r = y + 1.402 * cr;
+    float g = y - 0.344136 * cb - 0.714136 * cr;
+    float b = y + 1.772 * cb;
+    return float4(r, g, b, 1.0);
+}
 
 typedef struct
 {
@@ -165,17 +232,64 @@ fragment float4 segmentation_render_target(Vertex vertex_data [[ stage_in ]],
 //    return float4(0,0,0,1.0); // black
 //};
 
+vertex VertexOut vertex_segmentation_rotated(uint vertexID [[vertex_id]]) {
+    float2 positions[4] = {
+        float2(-1.0, -1.0),
+        float2( 1.0, -1.0),
+        float2(-1.0,  1.0),
+        float2( 1.0,  1.0)
+    };
+
+    float2 texCoords[4] = {
+        float2(1.0, 0.0),
+        float2(1.0, 1.0),
+        float2(0.0, 0.0),
+        float2(0.0, 1.0)
+    };
+
+    VertexOut out;
+    float2 rotated = float2(positions[vertexID].y, -positions[vertexID].x); // Rotate 90° clockwise
+    out.position = float4(rotated, 0, 1);
+    out.texCoord = texCoords[vertexID];
+    return out;
+}
+
+vertex VertexOut vertex_segmentation_landscape(uint vertexID [[vertex_id]]) {
+    float2 positions[4] = {
+        float2(-1.0, -1.0), // bottom-left
+        float2( 1.0, -1.0), // bottom-right
+        float2(-1.0,  1.0), // top-left
+        float2( 1.0,  1.0)  // top-right
+    };
+
+    // ✅ ROTATE UVs 90° clockwise to correct for portrait-trained model
+    float2 texCoords[4] = {
+        float2(0.0, 1.0), // bottom-left → left-top
+        float2(1.0, 1.0), // bottom-right → right-top
+        float2(0.0, 0.0), // top-left → left-bottom
+        float2(1.0, 0.0)  // top-right → right-bottom
+    };
+
+    VertexOut out;
+    float2 rotated = float2(positions[vertexID].y, -positions[vertexID].x); // 90° clockwise
+    out.position = float4(rotated, 0, 1);
+    out.texCoord = texCoords[vertexID];
+    return out;
+}
+
+
+
 typedef struct {
     int32_t numberOfClasses;
     int32_t width;
     int32_t height;
 } MultitargetSegmentationUniform;
 
-fragment float4 multitarget_segmentation_render_target(Vertex vertex_data [[ stage_in ]],
+fragment float4 multitarget_segmentation_render_target(VertexOut vertex_data [[ stage_in ]],
                                                        constant float *logits [[ buffer(0) ]],
                                                        constant MultitargetSegmentationUniform& uniform [[ buffer(1) ]]) {
-    int x = int(vertex_data.text_coord.x * float(uniform.width));
-    int y = int(vertex_data.text_coord.y * float(uniform.height));
+    int x = int(vertex_data.texCoord.x * float(uniform.width));
+    int y = int(vertex_data.texCoord.y * float(uniform.height));
     int baseIndex = (y * uniform.width + x) * uniform.numberOfClasses;
 
     int predictedClass = 0;
@@ -195,6 +309,31 @@ fragment float4 multitarget_segmentation_render_target(Vertex vertex_data [[ sta
         return float4(0.0, 0.0, 0.0, 0.0); // transparent for background
     }
 }
+
+//fragment float4 multitarget_segmentation_render_target(Vertex vertex_data [[ stage_in ]],
+//                                                       constant float *logits [[ buffer(0) ]],
+//                                                       constant MultitargetSegmentationUniform& uniform [[ buffer(1) ]]) {
+//    int x = int(vertex_data.text_coord.x * float(uniform.width));
+//    int y = int(vertex_data.text_coord.y * float(uniform.height));
+//    int baseIndex = (y * uniform.width + x) * uniform.numberOfClasses;
+//
+//    int predictedClass = 0;
+//    float maxVal = logits[baseIndex];
+//    for (int i = 1; i < uniform.numberOfClasses; i++) {
+//        float val = logits[baseIndex + i];
+//        if (val > maxVal) {
+//            maxVal = val;
+//            predictedClass = i;
+//        }
+//    }
+//
+//    // Map predicted class to color
+//    if (predictedClass == 1) {
+//        return float4(0.0, 0.3, 1.0, 1.0); // e.g., blue for lane
+//    } else {
+//        return float4(0.0, 0.0, 0.0, 0.0); // transparent for background
+//    }
+//}
 
 
 //fragment float4 multitarget_segmentation_render_target(Vertex vertex_data [[ stage_in ]],
