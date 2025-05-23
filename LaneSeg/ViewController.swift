@@ -34,6 +34,11 @@ class ViewController: UIViewController {
     var lastLaneAlertTime: Date?
     let laneSpeechCooldown: TimeInterval = 3.0
     
+    var lastAlertedObjects: [String: Float] = [:]  // e.g. ["person": 2.5]
+    let depthChangeThreshold: Float = 0.5  // Announce again only if change > 1m
+    var alertResetTimer: Timer?
+
+    
     var isLaneVoiceEnabled = true
     var isDetectionVoiceEnabled = true
 
@@ -144,6 +149,11 @@ class ViewController: UIViewController {
         switchStack.translatesAutoresizingMaskIntoConstraints = false
         switchStack.transform = CGAffineTransform(rotationAngle: .pi / 2)
         view.addSubview(switchStack)
+        
+        alertResetTimer = Timer.scheduledTimer(withTimeInterval: 7.0, repeats: true) { [weak self] _ in
+            self?.lastAlertedObjects.removeAll()
+        }
+
 
 
         NSLayoutConstraint.activate([
@@ -174,6 +184,9 @@ class ViewController: UIViewController {
         // setup lidar
         setUpLiDAR()
     }
+    deinit {
+            alertResetTimer?.invalidate()
+        }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -468,8 +481,15 @@ extension ViewController {
 
                 if closeDangerObjects.count == 1 {
                     if let obj = closeDangerObjects.first {
-                        let roundedDepth = (obj.depth * 2).rounded() / 2
-                        alertMessage = "\(obj.label.capitalized) at \(String(format: "%.1f", roundedDepth)) meters ahead"
+                        let lastDepth = self.lastAlertedObjects[obj.label] ?? Float.greatestFiniteMagnitude
+                        
+                        if abs(lastDepth - obj.depth) >= self.depthChangeThreshold {
+                            alertMessage = "\(obj.label.capitalized) at \(String(format: "%.1f", obj.depth)) meters ahead"
+                                    self.lastAlertedObjects[obj.label] = obj.depth
+                                } else {
+                                    // No significant change, don't update alertMessage
+                                }
+//                        alertMessage = "\(obj.label.capitalized) at \(String(format: "%.1f", roundedDepth)) meters ahead"
                     }
                 } else if closeDangerObjects.count > 1 {
                     let total = closeDangerObjects.count

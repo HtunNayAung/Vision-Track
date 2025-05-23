@@ -222,7 +222,7 @@ class SegmentationAnalyzer {
         let lowerLeft = CGRect(x: 0, y: halfHeight, width: halfWidth, height: halfHeight)
         let lowerRight = CGRect(x: halfWidth, y: halfHeight, width: halfWidth, height: halfHeight)
 
-        let countThreshold = Int(Float(halfWidth * halfHeight) * 0.1) // 10% lane coverage threshold
+        let countThreshold = Int(Float(halfWidth * halfHeight) * 0.13) // 13% lane coverage threshold
 
         let laneCountLeft = countLanePixels(in: lowerLeft, from: texture)
         let laneCountRight = countLanePixels(in: lowerRight, from: texture)
